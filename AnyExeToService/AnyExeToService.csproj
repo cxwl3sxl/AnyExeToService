@@ -131,12 +131,6 @@
     <Resource Include="main.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="bin\Debug\MaterialDesignThemes.Wpf.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="bin\Debug\MaterialDesignColors.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\MaterialDesignColors.dll" />
   </ItemGroup>
   <ItemGroup>
