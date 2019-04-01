@@ -1,7 +1,1 @@
-# AnyExeToService
-将任意exe程序安装成windows服务
-屏幕截图
-
-![](https://github.com/cxwl3sxl/AnyExeToService/blob/master/images/index.PNG)
-
- [下载地址](https://github.com/cxwl3sxl/AnyExeToService/releases "下载地址")
+﻿# AnyExeToService将任意exe程序安装成windows服务屏幕截图![](https://github.com/cxwl3sxl/AnyExeToService/blob/master/images/index.PNG) [下载地址](https://github.com/cxwl3sxl/AnyExeToService/releases "下载地址")# 原理基于Instsrv.exe和srvany.exe实现
