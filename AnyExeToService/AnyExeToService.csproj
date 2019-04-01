@@ -47,7 +47,7 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>main.ico</ApplicationIcon>
+    <ApplicationIcon>preferences_management_service_128px_1172109_easyicon.net.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MaterialDesignColors">
@@ -141,6 +141,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\MaterialDesignThemes.Wpf.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="preferences_management_service_128px_1172109_easyicon.net.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
