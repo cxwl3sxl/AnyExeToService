@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Windows;
 
 namespace AnyExeToService
@@ -12,6 +14,12 @@ namespace AnyExeToService
         {
             File.WriteAllBytes("MaterialDesignThemes.Wpf.dll", AnyExeToService.Properties.Resources.MaterialDesignThemes_Wpf);
             File.WriteAllBytes("MaterialDesignColors.dll", AnyExeToService.Properties.Resources.MaterialDesignColors);
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+        }
+
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            return args.Name.Contains("Newtonsoft.Json") ? Assembly.Load(AnyExeToService.Properties.Resources.Newtonsoft_Json) : null;
         }
     }
 }

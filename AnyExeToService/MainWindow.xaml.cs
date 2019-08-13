@@ -2,12 +2,14 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using Path = System.IO.Path;
 
 namespace AnyExeToService
@@ -19,10 +21,26 @@ namespace AnyExeToService
     {
         private readonly ServiceInfo _serviceInfo;
         private readonly Process _cmdProcess;
+        private readonly string _installConfig = "install.json";
         public MainWindow()
         {
             InitializeComponent();
-            _serviceInfo = new ServiceInfo();
+            if (File.Exists(_installConfig))
+            {
+                try
+                {
+                    _serviceInfo = JsonConvert.DeserializeObject<ServiceInfo>(File.ReadAllText(_installConfig)) ?? new ServiceInfo();
+                }
+                catch (Exception ex)
+                {
+                    WriteLog($"读取配置出错：{ex.Message}");
+                    _serviceInfo = new ServiceInfo();
+                }
+            }
+            else
+            {
+                _serviceInfo = new ServiceInfo();
+            }
             DataContext = _serviceInfo;
             _cmdProcess = new Process();
             _cmdProcess.StartInfo.FileName = "cmd.exe";
@@ -75,81 +93,24 @@ namespace AnyExeToService
             }
 
             if (!install) return;
-            WriteLog("正在释放相关帮助程序...");
-            var dir = Path.GetDirectoryName(_serviceInfo.ExePath);
-            if (string.IsNullOrWhiteSpace(dir))
-            {
-                WriteLog("无法读取待安装程序的目录");
-                return;
-            }
-
-            var installExe = Path.Combine(dir, "install.exe");
-            var bridgeExe = Path.Combine(dir, "ServiceBridge.exe");
-            File.WriteAllBytes(installExe, Properties.Resources.install);
-            File.WriteAllBytes(bridgeExe, Properties.Resources.ServiceBridge);
-            WriteLog("正在安装服务...");
-            _cmdProcess.StandardInput.WriteLine($"\"{installExe}\" {_serviceInfo.ServiceName} \"{bridgeExe}\"");
-
-            var installSuccessed = false;
-            await Task.Run(() =>
-            {
-                var i = 0;
-                while (i < 10)
-                {
-                    if (_serviceInfo.Logs.Contains("The service was successfuly added"))
-                    {
-                        installSuccessed = true;
-                        break;
-                    }
-                    Thread.Sleep(1000);
-                    i++;
-                }
-            });
-            if (!installSuccessed)
-            {
-                WriteLog("服务安装失败.");
-                return;
-            }
-
-            WriteLog("正在配置服务...");
-            var serviceKey = Registry.LocalMachine.OpenSubKey(
-                $@"SYSTEM\CurrentControlSet\Services\{_serviceInfo.ServiceName}", true);
-            if (serviceKey == null)
-            {
-                WriteLog("无法找到注册表中的相关服务信息，安装失败(E1).");
-                return;
-            }
-
-            var serviceParameter = serviceKey.OpenSubKey("Parameters", true) ?? serviceKey.CreateSubKey("Parameters");
-            if (serviceParameter == null)
-            {
-                WriteLog("无法找到注册表中的相关服务信息，安装失败(E2).");
-                return;
-            }
-            serviceParameter.SetValue("Application", _serviceInfo.ExePath, RegistryValueKind.String);
-            serviceParameter.SetValue("AppDirectory", dir, RegistryValueKind.String);
-            if (!string.IsNullOrWhiteSpace(_serviceInfo.Arguments))
-            {
-                serviceParameter.SetValue("AppParameters", _serviceInfo.Arguments, RegistryValueKind.String);
-            }
-
-            if (!string.IsNullOrWhiteSpace(_serviceInfo.Desc))
-            {
-                serviceKey.SetValue("Description", _serviceInfo.Desc);
-            }
-
-            serviceKey.Close();
-            WriteLog("服务配置成功，正在启动...");
-            _cmdProcess.StandardInput.WriteLine($"net start {_serviceInfo.ServiceName}");
-            WriteLog("正在清理...");
             try
             {
-                File.Delete(installExe);
+                if (_serviceInfo.AdvModel)
+                {
+                    InstallViaInner();
+                }
+                else
+                {
+                    InstallViaMicrosoft();
+                }
+
+                File.WriteAllText(_installConfig, JsonConvert.SerializeObject(_serviceInfo, Formatting.Indented));
             }
             catch (Exception ex)
             {
-                WriteLog($"清理失败：{ex.Message}");
+                WriteLog($"安装失败：{ex.Message}");
             }
+
         }
 
         private void ChooseExeFile_OnClick(object sender, RoutedEventArgs e)
@@ -177,11 +138,139 @@ namespace AnyExeToService
             DialogHostA.IsOpen = true;
         }
 
-        private void DoUnInstall_OnClick(object sender, RoutedEventArgs e)
+        private async void DoUnInstall_OnClick(object sender, RoutedEventArgs e)
         {
             DialogHostA.IsOpen = false;
             if (string.IsNullOrWhiteSpace(_serviceInfo.ServiceName)) return;
+            _cmdProcess.StandardInput.WriteLine($"net stop {_serviceInfo.ServiceName}");
+            await ServiceHelper.WaiteForStatus(_serviceInfo.ServiceName, ServiceControllerStatus.Stopped);
             _cmdProcess.StandardInput.WriteLine($"sc delete {_serviceInfo.ServiceName}");
+        }
+
+        private void RemoveDepSvr_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is Button btn)) return;
+            if (!(btn.Tag is SystemServiceInfo ssi)) return;
+            _serviceInfo.DepService.Remove(ssi);
+        }
+
+        async void InstallViaMicrosoft()
+        {
+            WriteLog("正在释放相关帮助程序...");
+            var dir = Path.GetDirectoryName(_serviceInfo.ExePath);
+            if (string.IsNullOrWhiteSpace(dir))
+            {
+                WriteLog("无法读取待安装程序的目录");
+                return;
+            }
+
+            var installExe = Path.Combine(dir, "install.exe");
+            var bridgeExe = Path.Combine(dir, "ServiceBridge.exe");
+            if (!File.Exists(installExe))
+                File.WriteAllBytes(installExe, Properties.Resources.install);
+            if (!File.Exists(bridgeExe))
+                File.WriteAllBytes(bridgeExe, Properties.Resources.ServiceBridge);
+            WriteLog("正在安装服务...");
+            _cmdProcess.StandardInput.WriteLine($"\"{installExe}\" {_serviceInfo.ServiceName} \"{bridgeExe}\"");
+
+            var installSuccessed = false;
+            await Task.Run(() =>
+            {
+                var i = 0;
+                while (i < 10)
+                {
+                    if (_serviceInfo.Logs.Contains("The service was successfuly added"))
+                    {
+                        installSuccessed = true;
+                        break;
+                    }
+
+                    Thread.Sleep(1000);
+                    i++;
+                }
+            });
+            if (!installSuccessed)
+            {
+                WriteLog("服务安装失败.");
+                return;
+            }
+
+            WriteLog("正在配置服务...");
+            var serviceKey = Registry.LocalMachine.OpenSubKey(
+                $@"SYSTEM\CurrentControlSet\Services\{_serviceInfo.ServiceName}", true);
+            if (serviceKey == null)
+            {
+                WriteLog("无法找到注册表中的相关服务信息，安装失败(E1).");
+                return;
+            }
+
+            var serviceParameter = serviceKey.OpenSubKey("Parameters", true) ?? serviceKey.CreateSubKey("Parameters");
+            if (serviceParameter == null)
+            {
+                WriteLog("无法找到注册表中的相关服务信息，安装失败(E2).");
+                return;
+            }
+
+            serviceParameter.SetValue("Application", _serviceInfo.ExePath, RegistryValueKind.String);
+            serviceParameter.SetValue("AppDirectory", dir, RegistryValueKind.String);
+            if (!string.IsNullOrWhiteSpace(_serviceInfo.Arguments))
+            {
+                serviceParameter.SetValue("AppParameters", _serviceInfo.Arguments, RegistryValueKind.String);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_serviceInfo.Desc))
+            {
+                serviceKey.SetValue("Description", _serviceInfo.Desc);
+            }
+
+            serviceKey.Close();
+            WriteLog("服务配置成功，正在启动...");
+            _cmdProcess.StandardInput.WriteLine($"net start {_serviceInfo.ServiceName}");
+            WriteLog("正在清理...");
+            try
+            {
+                File.Delete(installExe);
+            }
+            catch (Exception ex)
+            {
+                WriteLog($"清理失败：{ex.Message}");
+            }
+        }
+
+        void InstallViaInner()
+        {
+            WriteLog("正在释放相关帮助程序...");
+            var path = Path.GetDirectoryName(_serviceInfo.ExePath);
+            var log4Net = $"{path}\\log4net.dll";
+            if (!File.Exists(log4Net))
+                File.WriteAllBytes(log4Net, Properties.Resources.log4net);
+            var app = $"{path}\\{_serviceInfo.ServiceName}.svr.exe";
+            if (!File.Exists(app))
+                File.WriteAllBytes(app, Properties.Resources.ServiceApp);
+            var cfg = $"{app}.json";
+            File.WriteAllText(cfg, JsonConvert.SerializeObject(new ExeServiceConfig()
+            {
+                Argument = _serviceInfo.Arguments,
+                Exe = _serviceInfo.ExePath
+            }, Formatting.Indented));
+            WriteLog("正在安装服务...");
+            var depSvr = new string[_serviceInfo.DepService.Count];
+            for (var i = 0; i < _serviceInfo.DepService.Count; i++)
+            {
+                depSvr[i] = _serviceInfo.DepService[i].Name;
+            }
+
+            ServiceHelper.Install(_serviceInfo.ServiceName,
+                string.IsNullOrWhiteSpace(_serviceInfo.DisplayName)
+                    ? _serviceInfo.ServiceName
+                    : _serviceInfo.DisplayName,
+                app,
+                _serviceInfo.Desc,
+                _serviceInfo.ServiceStartType,
+                _serviceInfo.ServiceAccount,
+                depSvr);
+            WriteLog("安装成功，正在启动服务...");
+            _cmdProcess.StandardInput.WriteLine($"net start {_serviceInfo.ServiceName}");
         }
     }
 

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AnyExeToService.Properties {
+namespace ServiceApp.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace AnyExeToService.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AnyExeToService.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ServiceApp.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,42 +61,23 @@ namespace AnyExeToService.Properties {
         }
         
         /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
+        ///   查找类似 &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+        ///
+        ///&lt;configuration&gt;
+        ///  &lt;configSections&gt;
+        ///    &lt;section name=&quot;log4net&quot; type=&quot;log4net.Config.Log4NetConfigurationSectionHandler,log4net&quot; /&gt;
+        ///  &lt;/configSections&gt;
+        ///  &lt;log4net&gt;
+        ///    &lt;appender name=&quot;RootAppender&quot; type=&quot;log4net.Appender.RollingFileAppender&quot;&gt;
+        ///      &lt;param name=&quot;File&quot; value=&quot;Logs\\&quot; /&gt;
+        ///      &lt;param name=&quot;AppendToFile&quot; value=&quot;true&quot; /&gt;
+        ///      &lt;param name=&quot;MaxFileSize&quot; value=&quot;10240&quot; /&gt;
+        ///      &lt;param name=&quot;MaxSizeRollBackups&quot; value=&quot;100&quot; /&gt;
+        ///      &lt;param name=&quot;Sta [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
-        internal static byte[] install {
+        internal static string log4net1 {
             get {
-                object obj = ResourceManager.GetObject("install", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] log4net {
-            get {
-                object obj = ResourceManager.GetObject("log4net", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] MaterialDesignColors {
-            get {
-                object obj = ResourceManager.GetObject("MaterialDesignColors", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] MaterialDesignThemes_Wpf {
-            get {
-                object obj = ResourceManager.GetObject("MaterialDesignThemes_Wpf", resourceCulture);
-                return ((byte[])(obj));
+                return ResourceManager.GetString("log4net1", resourceCulture);
             }
         }
         
@@ -106,26 +87,6 @@ namespace AnyExeToService.Properties {
         internal static byte[] Newtonsoft_Json {
             get {
                 object obj = ResourceManager.GetObject("Newtonsoft_Json", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] ServiceApp {
-            get {
-                object obj = ResourceManager.GetObject("ServiceApp", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] ServiceBridge {
-            get {
-                object obj = ResourceManager.GetObject("ServiceBridge", resourceCulture);
                 return ((byte[])(obj));
             }
         }

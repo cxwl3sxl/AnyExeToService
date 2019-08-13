@@ -6,7 +6,13 @@
         xmlns:local="clr-namespace:AnyExeToService"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Exe安装成服务" Height="450" Width="600" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="SingleBorderWindow">
+        Title="Exe安装成服务"
+        Height="500" 
+        Width="600" 
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize" 
+        SizeToContent="Height"
+        WindowStyle="SingleBorderWindow">
     <Window.Resources>
         <Style x:Key="MaterialDesignFloatingHintTextBox" TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
             <Setter Property="Margin" Value="0 8 0 8" />
@@ -15,6 +21,8 @@
     <Grid>
         <Grid Margin="10">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
@@ -64,22 +72,94 @@
                  materialDesign:HintAssist.Hint="服务描述"
                  Style="{StaticResource MaterialDesignFloatingHintTextBox}"  Text="{Binding Desc}"/>
 
-            <Button Grid.Row="4" Grid.ColumnSpan="2" Margin="130 5 5 5"
+            <StackPanel Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Left" Orientation="Horizontal">
+                <Label Margin="-4 0 0 0">高级模式：</Label>
+                <ToggleButton
+                    IsChecked="{Binding AdvModel}"
+                    Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                    ToolTip="启动模式" />
+            </StackPanel>
+
+            <Grid Grid.Row="5" Grid.ColumnSpan="2" Visibility="{Binding AdvModelVisibility}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <TextBox Grid.Row="0" materialDesign:HintAssist.Hint="显示名称"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"  Text="{Binding DisplayName}"/>
+
+                <ComboBox Grid.Row="1"
+                    materialDesign:HintAssist.Hint="启动类型"
+                    ItemsSource="{Binding ServiceStartTypes}"
+                    SelectedItem="{Binding ServiceStartType}"
+                    Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                </ComboBox>
+
+                <ComboBox Grid.Row="2"
+                          materialDesign:HintAssist.Hint="启动账号"
+                          ItemsSource="{Binding ServiceAccounts}"
+                          SelectedItem="{Binding ServiceAccount}"
+                          Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                </ComboBox>
+
+                <StackPanel Grid.Row="3" Orientation="Horizontal">
+                    <ComboBox materialDesign:HintAssist.Hint="依赖服务"
+                              ItemsSource="{Binding AllServices}"
+                              IsEditable="True"
+                              Width="165"
+                              SelectedItem="{Binding CurrentAddService}"
+                              Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                    </ComboBox>
+                    <ListView ItemsSource="{Binding DepService}" Height="80">
+                        <ListView.Template>
+                            <ControlTemplate>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" >
+                                    <ItemsPresenter />
+                                </ScrollViewer>
+                            </ControlTemplate>
+                        </ListView.Template>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Width="400" ItemWidth="80"></WrapPanel>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Button 
+                                    Height="24"
+                                    Width="64"
+                                    Margin="0"
+                                    FontSize="12"
+                                    Content="{Binding Path=Name}" 
+                                    Tag="{Binding}" 
+                                    Click="RemoveDepSvr_OnClick" 
+                                    ToolTip="{Binding DisplayName}"></Button>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Grid>
+
+            <Button Grid.Row="6" Grid.ColumnSpan="2" Margin="130 5 5 5"
                 Style="{StaticResource MaterialDesignRaisedDarkButton}"
                 Width="100"
                 Click="InstallService_OnClick">
                 安装
             </Button>
-            <Button Grid.Row="4" Grid.ColumnSpan="2" Margin="5 5 130 5"
+            <Button Grid.Row="6" Grid.ColumnSpan="2" Margin="5 5 130 5"
                 Style="{StaticResource MaterialDesignRaisedDarkButton}"
                 Width="100"
                 Click="UnInstall_OnClick">
                 卸载
             </Button>
 
-            <TextBox Grid.Row="5" 
+            <TextBox Grid.Row="7" 
                  x:Name="TextBoxLogs"
                  Style="{x:Null}"
+                 Height="100"
                  Grid.ColumnSpan="2" 
                  Background="Black" 
                  VerticalScrollBarVisibility="Auto" 
