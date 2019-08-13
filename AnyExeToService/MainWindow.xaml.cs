@@ -68,7 +68,7 @@ namespace AnyExeToService
             });
         }
 
-        private async void InstallService_OnClick(object sender, RoutedEventArgs e)
+        private void InstallService_OnClick(object sender, RoutedEventArgs e)
         {
             var install = true;
             if (string.IsNullOrWhiteSpace(_serviceInfo.ServiceName))
@@ -93,8 +93,14 @@ namespace AnyExeToService
             }
 
             if (!install) return;
+            var oldPath = _serviceInfo.ExePath;
             try
             {
+                var dirName = Path.GetDirectoryName(_serviceInfo.ExePath);
+                if (string.IsNullOrWhiteSpace(dirName))
+                {
+                    _serviceInfo.ExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _serviceInfo.ExePath);
+                }
                 if (_serviceInfo.AdvModel)
                 {
                     InstallViaInner();
@@ -110,7 +116,7 @@ namespace AnyExeToService
             {
                 WriteLog($"安装失败：{ex.Message}");
             }
-
+            _serviceInfo.ExePath = oldPath;
         }
 
         private void ChooseExeFile_OnClick(object sender, RoutedEventArgs e)
