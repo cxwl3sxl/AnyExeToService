@@ -33,6 +33,8 @@ namespace ServiceApp
         {
             _mainProcess?.Kill();
             _mainProcess?.Dispose();
+            _log.Debug($"程序路径：{_config.Exe}");
+            _log.Debug($"启动参数：{_config.Argument}");
             _mainProcess = new Process
             {
                 StartInfo = new ProcessStartInfo(_config.Exe)

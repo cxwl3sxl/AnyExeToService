@@ -19,7 +19,7 @@ namespace ServiceApp.Properties {
     // 类通过类似于 ResGen 或 Visual Studio 的工具自动生成的。
     // 若要添加或移除成员，请编辑 .ResX 文件，然后重新运行 ResGen
     // (以 /str 作为命令选项)，或重新生成 VS 项目。
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -61,6 +61,16 @@ namespace ServiceApp.Properties {
         }
         
         /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] log4net_dll {
+            get {
+                object obj = ResourceManager.GetObject("log4net_dll", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
         ///
         ///&lt;configuration&gt;
@@ -69,11 +79,11 @@ namespace ServiceApp.Properties {
         ///  &lt;/configSections&gt;
         ///  &lt;log4net&gt;
         ///    &lt;appender name=&quot;RootAppender&quot; type=&quot;log4net.Appender.RollingFileAppender&quot;&gt;
-        ///      &lt;param name=&quot;File&quot; value=&quot;Logs\\&quot; /&gt;
+        ///      &lt;param name=&quot;File&quot; value=&quot;#ROOT#\\&quot; /&gt;
         ///      &lt;param name=&quot;AppendToFile&quot; value=&quot;true&quot; /&gt;
         ///      &lt;param name=&quot;MaxFileSize&quot; value=&quot;10240&quot; /&gt;
         ///      &lt;param name=&quot;MaxSizeRollBackups&quot; value=&quot;100&quot; /&gt;
-        ///      &lt;param name=&quot;Sta [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///      &lt;param name=&quot;S [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string log4net1 {
             get {

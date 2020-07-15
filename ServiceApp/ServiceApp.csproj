@@ -80,9 +80,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\log4net.dll" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="Resources\log4net.dll.dat" />
     <None Include="Resources\Newtonsoft.Json.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
